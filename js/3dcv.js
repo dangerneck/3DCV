@@ -300,7 +300,7 @@ function CSS3DElementsInit(){
 
 	// create the dom Element
 	var element = document.createElement( 'div' );
-	element.innerHTML = "<h1>This page is currently not online sorry. But you can find this game on GameJolt.</h1>"
+	element.innerHTML = "<h1>The page for my game called Mother Fucker Galaxy should be here but it's currently offline. You can find it on GameJolt, though.</h1><img src='images/costanza-shrug.gif' />"
 	element.style.padding = "100px";
 	var elementWidth = 1024;
 	// force iframe to have same relative dimensions as planeGeometry
@@ -355,10 +355,10 @@ function CSS3DElementsInit(){
 
 	// create the dom Element
 	var element = document.createElement( 'div' );
-	element.innerHTML = "<h1>That's all for now.</h1><h1>Please enjoy the grassy void.</h1>";
+	element.innerHTML = "<h1>That's all for now.</h1><h1>Please enjoy the grassy void.</h1><br /><br /><img src='images/126.gif' />";
 	// force iframe to have same relative dimensions as planeGeometry
 	element.style.width  = "500px";
-	element.style.height = "300px";
+	element.style.height = "600px";
 	element.style.background = "-webkit-linear-gradient(top, #9efc8f 0%,#e8a1ea 100%)";
 	element.style.padding = "50px";
 
