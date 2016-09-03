@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<title>Andrew Moore's Semi-Complete 3D CV</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+<link rel="stylesheet" href="css/bootstrap.min.css" />
+
+<style>
+	.glyphicon{
+		font-size:28px;
+	}
+	.alert-info{
+		font-size:28px;
+	}
+</style>
+
+<script src="js/Three58.js"></script>
+<script src="js/Detector.js"></script>
+<script src="js/jquery.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/CSS3DRenderer.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/bootstrap-growl.min.js"></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+
+<script src="js/3dcv.js"></script>
+
+<div class="modal fade" id="info-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="modal-title">Modal title</h4>
+      </div>
+      <div class="modal-body">
+        <p id="modal-body-p">One fine body&hellip;</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" id="modal-button">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+</body>
+</html>
