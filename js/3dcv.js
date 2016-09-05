@@ -1,72 +1,25 @@
+// Global vars
+
+var container, scene, camera, renderer, cssRenderer, cssScene;
+var keyboard = new THREEx.KeyboardState();
+var clock = new THREE.Clock();
+var wallsWidth = 20;
+var wallsHeight = 150;
+var targetList = [];
+var interactableList = [];
+var interactionsList = [];
+var projector, mouse = { x: 0, y: 0 };
+var infoModalLookup = [];
 
 //
-// Growl Stuff
+// Info modals
 //
+//
+
 $('#info-modal').modal({
   keyboard: false
 });
 
- var growlSettings = {
-			position:{from: "top", align: "center"},
-			delay: 5000,
-			allow_dismiss: true,
-			type: "info",
-			fade_in: 400,
-			z_index: 10,
-			pause_on_mouseover: true
-		};
-
-setTimeout(function(){
-	$.growl(
-		"<span class='glyphicon glyphicon-comment'></span>    Welcome.",
-		growlSettings
-	);
-}, 1000);
-
-setTimeout(function(){
-	$.growl(
-		"W S A D to walk around",
-		growlSettings
-	);
-}, 2500);
-
-setTimeout(function(){
-	$.growl(
-		"Click on the door and the ? icons to interact",
-		growlSettings
-	);
-}, 4000);
-
-setTimeout(function(){
-	$.growl(
-		"<span class='glyphicon glyphicon-eye-open'></span>    Take a look around.",
-		growlSettings
-	);
-}, 7000);
-
-//
-// Lets get initializing
-//
-
-var sofa, sofaTwo;
-var container, scene, camera, renderer, cssRenderer, cssScene;
-var keyboard = new THREEx.KeyboardState();
-var clock = new THREE.Clock();
-
-var wallsWidth = 20;
-var wallsHeight = 150;
-
-var targetList = [];
-var interactableList = [];
-var interactionsList = [];
-
-var projector, mouse = { x: 0, y: 0 };
-
-var infoModalLookup = [];
-
-//
-// Info Boxes
-//
 var MFGInfo = {
 	title: "Mother Fucker Galaxy",
 	body: "Mother Fucker Galaxy is my first completed action-format video-game.<br />It is an excessively difficult 2D Shoot-em-up game that explores themes of trauma and violence. It was made using Yoyogames' Game Maker. <br />Music made in famitracker.",
@@ -94,12 +47,12 @@ var GLInfo = {
 document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
 init();
+initGrowl();
 animate();
 
 // FUNCTIONS
 function init()
 {
-
 	projector = new THREE.Projector();
 
 	// SCENE
@@ -170,7 +123,7 @@ function init()
 	floor.receiveShadow = true;
 	scene.add(floor);
 
-	// Walls
+	// Big back wall
 	var wallGeo = new THREE.CubeGeometry(4000,300,20,1,1,1);
 	var wallMat = new THREE.MeshBasicMaterial({color: 0xaaee00});
 	var wall = new THREE.Mesh(wallGeo, wallMat);
@@ -178,6 +131,7 @@ function init()
 	scene.add(wall);
 	collidableMeshList.push(wall);
 
+	// The building
 	InitStructure();
 
 	// SKYBOX/FOG
@@ -191,7 +145,7 @@ function init()
 	// CSS3D
 	cssScene = new THREE.Scene();
 
-	CSS3DElementsInit()
+	CSS3DElementsInit();
 
 	cssRenderer = new THREE.CSS3DRenderer();
 	cssRenderer.setSize( window.innerWidth, window.innerHeight );
@@ -207,6 +161,46 @@ function init()
 	renderer.domElement.style.position = 'absolute';
 	cssRenderer.domElement.appendChild(renderer.domElement);
 
+}
+
+function initGrowl(){
+ 	var growlSettings = {
+		position:{from: "top", align: "center"},
+		delay: 5000,
+		allow_dismiss: true,
+		type: "info",
+		fade_in: 400,
+		z_index: 10,
+		pause_on_mouseover: true
+	};
+
+	setTimeout(function(){
+		$.growl(
+			"<span class='glyphicon glyphicon-comment'></span>    Welcome.",
+			growlSettings
+		);
+	}, 1000);
+
+	setTimeout(function(){
+		$.growl(
+			"W S A D to walk around",
+			growlSettings
+		);
+	}, 2500);
+
+	setTimeout(function(){
+		$.growl(
+			"Click on the door and the ? icons to interact",
+			growlSettings
+		);
+	}, 4000);
+
+	setTimeout(function(){
+		$.growl(
+			"<span class='glyphicon glyphicon-eye-open'></span>    Take a look around.",
+			growlSettings
+		);
+	}, 7000);
 }
 
 function animate()
@@ -238,16 +232,11 @@ function update()
 
 	}
 
-	// rotate left/right/up/down
 	var rotation_matrix = new THREE.Matrix4().identity();
 	if ( keyboard.pressed("A") )
 		camera.rotateOnAxis( new THREE.Vector3(0,1,0), rotateAngle);
 	if ( keyboard.pressed("D") )
 		camera.rotateOnAxis( new THREE.Vector3(0,1,0), -rotateAngle);
-	//if ( keyboard.pressed("R") )
-	//	camera.rotateOnAxis( new THREE.Vector3(1,0,0), rotateAngle);
-	//if ( keyboard.pressed("F") )
-	//	camera.rotateOnAxis( new THREE.Vector3(1,0,0), -rotateAngle);
 
 	if ( keyboard.pressed("Z") )
 	{
@@ -257,128 +246,13 @@ function update()
 
 }
 
-function canMoveTo(vBefore, vAfter){
-	if (vAfter.x > 2000 || vAfter.x < -2000){ return false; }
-	if (vAfter.z > 2000 || vAfter.z < -2000){ return false; }
-
-	for(var vi = 0; vi < cameraColMesh.geometry.vertices.length; vi++){
-		var localVertex = cameraColMesh.geometry.vertices[vi].clone();
-		var globalVertex = localVertex.applyMatrix4(cameraColMesh.matrix);
-		var directionVector = globalVertex.sub(cameraColMesh.position);
-
-		var colRay = new THREE.Raycaster(vAfter, directionVector.clone().normalize());
-		var colResult = colRay.intersectObjects(collidableMeshList);
-		if (colResult.length > 0 && colResult[0].distance < directionVector.length()){
-			return false;
-			break;
-		}
-	}
-
-	return true;
-}
-
 function render()
 {
 	cssRenderer.render(cssScene, camera);
 	renderer.render( scene, camera );
 }
 
-function CSS3DElementsInit(){
-
-	// MFG -----------------------------
-	var planeMaterial   = new THREE.MeshBasicMaterial({color: 0x000000, opacity: 0.1, side: THREE.DoubleSide });
-	var planeWidth = 200;
-    var planeHeight = 120;
-	var planeGeometry = new THREE.PlaneGeometry( planeWidth, planeHeight );
-	var planeGeometryMessage = new THREE.PlaneGeometry( 100, 60 );
-	var planeMesh= new THREE.Mesh( planeGeometry, planeMaterial );
-	planeMesh.position.y += planeHeight/2;
-	planeMesh.position.x = 500;
-	planeMesh.position.z = -150;
-	// add it to the standard (WebGL) scene
-	scene.add(planeMesh);
-
-	// create the dom Element
-	var element = document.createElement( 'div' );
-	element.innerHTML = "<h1>The page for my game called Mother Fucker Galaxy should be here but it's currently offline. You can find it on GameJolt, though.</h1><img src='images/costanza-shrug.gif' />"
-	element.style.padding = "100px";
-	var elementWidth = 1024;
-	// force iframe to have same relative dimensions as planeGeometry
-	var aspectRatio = planeHeight / planeWidth;
-	var elementHeight = elementWidth * aspectRatio;
-	element.style.width  = elementWidth + "px";
-	element.style.height = elementHeight + "px";
-
-	// create the object3d for this element
-	var cssObject = new THREE.CSS3DObject( element );
-	// we reference the same position and rotation
-	cssObject.position = planeMesh.position;
-	cssObject.rotation = planeMesh.rotation;
-	var percentBorder = 0.05;
-	cssObject.scale.x /= (1 + percentBorder) * (elementWidth / planeWidth);
-	cssObject.scale.y /= (1 + percentBorder) * (elementWidth / planeWidth);
-	// add it to the css scene
-	cssScene.add(cssObject);
-
- 	// gabbylovesart ----------------------------------------
-	var planeMesh= new THREE.Mesh( planeGeometry, planeMaterial );
-	planeMesh.position.y += planeHeight/2;
-	planeMesh.position.x = -500;
-	planeMesh.position.z = -150;
-	// add it to the standard (WebGL) scene
-	scene.add(planeMesh);
-
-	// create the dom Element
-	var element = document.createElement( 'iframe' );
-	element.src = 'http://gabbylovesart.com';
-	// force iframe to have same relative dimensions as planeGeometry
-	element.style.width  = elementWidth + "px";
-	element.style.height = elementHeight + "px";
-
-	// create the object3d for this element
-	var cssObject = new THREE.CSS3DObject( element );
-	// we reference the same position and rotation
-	cssObject.position = planeMesh.position;
-	cssObject.rotation = planeMesh.rotation;
-	cssObject.scale.x /= (1 + percentBorder) * (elementWidth / planeWidth);
-	cssObject.scale.y /= (1 + percentBorder) * (elementWidth / planeWidth);
-	// add it to the css scene
-	cssScene.add(cssObject);
-
-	// outside css element
-		var planeMesh= new THREE.Mesh( planeGeometry, planeMaterial );
-	planeMesh.position.y += planeHeight/2;
-	planeMesh.position.x = 0;
-	planeMesh.position.z = -875;
-	// add it to the standard (WebGL) scene
-	scene.add(planeMesh);
-
-	// create the dom Element
-	var element = document.createElement( 'div' );
-	element.innerHTML = "<h1>That's all for now.</h1><h1>Please enjoy the grassy void.</h1><br /><br /><img src='images/126.gif' />";
-	// force iframe to have same relative dimensions as planeGeometry
-	element.style.width  = "500px";
-	element.style.height = "600px";
-	element.style.background = "-webkit-linear-gradient(top, #9efc8f 0%,#e8a1ea 100%)";
-	element.style.padding = "50px";
-
-	// create the object3d for this element
-	var cssObject = new THREE.CSS3DObject( element );
-	// we reference the same position and rotation
-	cssObject.position = planeMesh.position;
-	cssObject.rotation = planeMesh.rotation;
-	cssObject.scale.x /= (1 + percentBorder) * (elementWidth / planeWidth);
-	cssObject.scale.y /= (1 + percentBorder) * (elementWidth / planeWidth);
-	// add it to the css scene
-	cssScene.add(cssObject);
-
-
-}
-
 function onDocumentMouseDown(event){
-	// the following line would stop any other event handler from firing
-	// (such as the mouse's TrackballControls)
-	// event.preventDefault();
 
 	console.log("Click.");
 
@@ -386,7 +260,6 @@ function onDocumentMouseDown(event){
 	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-	// find intersections
 
 	// create a Ray with origin at the mouse position
 	//   and direction into the scene (camera direction)
@@ -412,6 +285,105 @@ function onDocumentMouseDown(event){
 	}
 }
 
+function CSS3DElementsInit(){
+
+	var mfgElement = document.createElement( 'div' );
+	mfgElement.innerHTML = "<h1>The page for my game called Mother Fucker Galaxy should be here but it's currently offline. You can find it on GameJolt, though.</h1><img src='images/costanza-shrug.gif' />"
+	mfgElement.style.padding = "100px";
+	mfgElement.style.width  = "1024px";
+	mfgElement.style.height = "614px";
+
+	var glElement = document.createElement('iframe');
+	glElement.src = 'http://gabbylovesart.com';
+	// force iframe to have same relative dimensions as planeGeometry
+	glElement.style.width  = "1024px";
+	glElement.style.height = "614px";
+
+	// create the dom Element
+	var outsideElement = document.createElement( 'div' );
+	outsideElement.innerHTML = "<h1>That's all for now.</h1><h1>Please enjoy the grassy void.</h1><br /><br /><img src='images/126.gif' />";
+	// force iframe to have same relative dimensions as planeGeometry
+	outsideElement.style.width  = "500px";
+	outsideElement.style.height = "600px";
+	outsideElement.style.background = "-webkit-linear-gradient(top, #9efc8f 0%,#e8a1ea 100%)";
+	outsideElement.style.padding = "50px";
+
+	createCSS3DObject(
+	{
+		material: new THREE.MeshBasicMaterial({color: 0x000000, opacity: 0.1, side: THREE.DoubleSide }),
+		geometry: new THREE.PlaneGeometry(200, 120),
+		x: 500,
+		y: 0,
+		z: -150
+	}, mfgElement);
+
+	createCSS3DObject(
+	{
+		material: new THREE.MeshBasicMaterial({color: 0x000000, opacity: 0.1, side: THREE.DoubleSide }),
+		geometry: new THREE.PlaneGeometry(200, 120),
+		x: -500,
+		y: 0,
+		z: -150
+	}, glElement);
+
+	createCSS3DObject(
+	{
+		material: new THREE.MeshBasicMaterial({color: 0x000000, opacity: 0.1, side: THREE.DoubleSide }),
+		geometry: new THREE.PlaneGeometry(200, 200),
+		x: 0,
+		y: 0,
+		z: -875
+	}, outsideElement);
+}
+
+function createCSS3DObject(planeObj, element, forceAspectRatio){
+	var forceAspectRatio = (typeof forceAspectRatio !== 'undefined') ?  forceAspectRatio : true;
+	var planeMesh= new THREE.Mesh( planeObj.geometry, planeObj.material );
+	planeMesh.position.y = planeObj.geometry.height/2;
+	planeMesh.position.x = planeObj.x;
+	planeMesh.position.z = planeObj.z;
+	// add it to the standard (WebGL) scene
+	scene.add(planeMesh);
+
+	var elementWidth = element.style.width.replace(/[^0-9.]/g, "");
+
+	if (forceAspectRatio){
+		var aspectRatio = planeObj.geometry.height / planeObj.geometry.width;
+		var elementHeight = elementWidth * aspectRatio;
+		element.style.height = elementHeight + "px";
+	}
+
+	// create the object3d for this element
+	var cssObject = new THREE.CSS3DObject( element );
+	// we reference the same position and rotation
+	cssObject.position = planeMesh.position;
+	cssObject.rotation = planeMesh.rotation;
+	cssObject.scale.x /= (1 + 0.05) * (elementWidth / planeObj.geometry.width);
+	cssObject.scale.y /= (1 + 0.05) * (elementWidth / planeObj.geometry.width);
+	// add it to the css scene
+	cssScene.add(cssObject);
+}
+
+function canMoveTo(vBefore, vAfter){
+	if (vAfter.x > 2000 || vAfter.x < -2000){ return false; }
+	if (vAfter.z > 2000 || vAfter.z < -2000){ return false; }
+
+	for(var vi = 0; vi < cameraColMesh.geometry.vertices.length; vi++){
+		var localVertex = cameraColMesh.geometry.vertices[vi].clone();
+		var globalVertex = localVertex.applyMatrix4(cameraColMesh.matrix);
+		var directionVector = globalVertex.sub(cameraColMesh.position);
+
+		var colRay = new THREE.Raycaster(vAfter, directionVector.clone().normalize());
+		var colResult = colRay.intersectObjects(collidableMeshList);
+		if (colResult.length > 0 && colResult[0].distance < directionVector.length()){
+			return false;
+			break;
+		}
+	}
+
+	return true;
+}
+
 function InitStructure(){
 
 	// ~~~
@@ -420,11 +392,10 @@ function InitStructure(){
 	// 	Relax.
 	// ~~~
 
-	// Load Meshes
 
 	// Lamps
 	var loader = new THREE.SceneLoader();
-	loader.load("models/lamp.json", function(res){
+	loader.load("models/lamp.json", function(res){ // loading mesh
 		var lamp = res.scene.children[0];
 
 		lampTwo = lamp.clone();
@@ -445,7 +416,7 @@ function InitStructure(){
 	light.position.set(-150, 45, 700);
 	scene.add(light);
 
-	var light = new THREE.PointLight( 0x00eeaa, 1, 200);
+	light = new THREE.PointLight( 0x00eeaa, 1, 200);
 	light.position.set(150, 45, 700);
 	scene.add(light);
 
@@ -475,6 +446,7 @@ function InitStructure(){
 	scene.add(bulbTwo);
 	scene.add(bulbThree);
 
+
 	wallMat = new THREE.MeshPhongMaterial({ambient: 0x99aabb, specular: 0xffffff, shininess: 30, shading: THREE.FlatShading, color: 0xaabbcc});
 	roofMat = new THREE.MeshPhongMaterial({color: 0x445566});
 	var houseFloorTexture = new THREE.ImageUtils.loadTexture( 'images/AntiqueRedOakRustic.jpg' );
@@ -489,8 +461,6 @@ function InitStructure(){
 	var infoBoxTexture = THREE.ImageUtils.loadTexture('images/infobox.png');
 
 	infoBoxMat = new THREE.MeshBasicMaterial({color: 0xffffff, map: infoBoxTexture});
-
-
 
 	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
 	wall = new THREE.Mesh(wallGeo, wallMat);
