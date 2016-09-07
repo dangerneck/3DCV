@@ -1,5 +1,7 @@
 // Global vars
 
+
+
 var container, scene, camera, renderer, cssRenderer, cssScene;
 var keyboard = new THREEx.KeyboardState();
 var clock = new THREE.Clock();
@@ -232,7 +234,6 @@ function update()
 
 	}
 
-	var rotation_matrix = new THREE.Matrix4().identity();
 	if ( keyboard.pressed("A") )
 		camera.rotateOnAxis( new THREE.Vector3(0,1,0), rotateAngle);
 	if ( keyboard.pressed("D") )
@@ -384,6 +385,43 @@ function canMoveTo(vBefore, vAfter){
 	return true;
 }
 
+function createStructureWall(wallMat, w, d, h, position, rotate, solid ){
+	position = (typeof position !== 'undefined') ?  position : {x: 0, y: 0, z: 0};
+	rotate = (typeof rotate !== 'undefined') ?  rotate : true;
+	solid = (typeof solid !== 'undefined') ?  solid : true;
+
+	var wallGeo = new THREE.CubeGeometry(w,h,d,1,1,1);
+	var wall = new THREE.Mesh(wallGeo, wallMat);
+	wall.position.set(position.x, position.y, position.z);
+
+		var rotationMatrix = new THREE.Matrix4();
+		var axis = new THREE.Vector3(1,0,0);
+
+	    rotationMatrix.makeRotationAxis( axis.normalize(), Math.PI/2 );
+	    rotationMatrix.multiply( wall.matrix );                       // pre-multiply
+	    wall.matrix = rotationMatrix;
+	    wall.rotation.setEulerFromRotationMatrix( wall.matrix );
+
+	if (rotate){
+		var rotationMatrix = new THREE.Matrix4();
+		var axis = new THREE.Vector3(0,1,0);
+
+	    rotationMatrix.makeRotationAxis( axis.normalize(), Math.PI/2 );
+	    rotationMatrix.multiply( wall.matrix );                       // pre-multiply
+	    wall.matrix = rotationMatrix;
+	    wall.rotation.setEulerFromRotationMatrix( wall.matrix );
+	}
+
+	scene.add(wall);
+
+	wall.castShadow = true;
+	wall.receiveShadow = true;
+
+	if (solid){
+		collidableMeshList.push(wall);
+	}
+}
+
 function InitStructure(){
 
 	// ~~~
@@ -446,6 +484,11 @@ function InitStructure(){
 	scene.add(bulbTwo);
 	scene.add(bulbThree);
 
+	// Wall time
+	var wallsDepth = 200 + wallsWidth;
+	var wallsY = wallsHeight / 2;
+
+
 
 	wallMat = new THREE.MeshPhongMaterial({ambient: 0x99aabb, specular: 0xffffff, shininess: 30, shading: THREE.FlatShading, color: 0xaabbcc});
 	roofMat = new THREE.MeshPhongMaterial({color: 0x445566});
@@ -462,208 +505,39 @@ function InitStructure(){
 
 	infoBoxMat = new THREE.MeshBasicMaterial({color: 0xffffff, map: infoBoxTexture});
 
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(0,wallsHeight/2,1200);
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(100,wallsHeight/2,1100);
-	wall.rotation.y = Math.PI /2;
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(-100,wallsHeight/2,1100);
-	wall.rotation.y = Math.PI /2;
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(-200,wallsHeight/2,1000);
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(200,wallsHeight/2,1000);
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(400 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(300,wallsHeight/2,800);
-	wall.rotation.y = Math.PI /2;
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(400 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(-300,wallsHeight/2,800);
-	wall.rotation.y = Math.PI /2;
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(-200,wallsHeight/2,600);
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(200,wallsHeight/2,600);
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(-100,wallsHeight/2,500);
-	wall.rotation.y = Math.PI /2;
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(100,wallsHeight/2,500);
-	wall.rotation.y = Math.PI /2;
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(200,wallsHeight/2,400);
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(200,wallsHeight/2,200);
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(-200,wallsHeight/2,400);
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(-200,wallsHeight/2,200);
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: 0, y: wallsY, z: 1200}, false);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: 100, y: wallsY, z: 1100}, true);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: -100, y: wallsY, z: 1100}, true);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: -200, y: wallsY, z: 1000}, false);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: 200, y: wallsY, z: 1000}, false);
+	createStructureWall(wallMat, wallsDepth+200, wallsHeight, wallsWidth, {x: 300, y: wallsY, z: 800}, true);
+	createStructureWall(wallMat, wallsDepth+200, wallsHeight, wallsWidth, {x: -300, y: wallsY, z: 800}, true);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: -200, y: wallsY, z: 600}, false);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: 200, y: wallsY, z: 600}, false);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: -100, y: wallsY, z: 500}, true);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: 100, y: wallsY, z: 500}, true);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: 200, y: wallsY, z: 400}, false);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: 200, y: wallsY, z: 200}, false);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: -200, y: wallsY, z: 400}, false);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: -200, y: wallsY, z: 200}, false);
 
  	// Big Rooms
-	wallGeo = new THREE.CubeGeometry(400 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(-500,wallsHeight/2,600);
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-	wallGeo = new THREE.CubeGeometry(400 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(500,wallsHeight/2,600);
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(300,wallsHeight/2,500);
-	wall.rotation.y = Math.PI /2;
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-	wallGeo = new THREE.CubeGeometry(200 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(-300,wallsHeight/2,500);
-	wall.rotation.y = Math.PI /2;
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(400 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(-500,wallsHeight/2,-200);
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-	wallGeo = new THREE.CubeGeometry(400 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(500,wallsHeight/2,-200);
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(400 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(300,wallsHeight/2,0);
-	wall.rotation.y = Math.PI /2;
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-	wallGeo = new THREE.CubeGeometry(400 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(-300,wallsHeight/2,0);
-	wall.rotation.y = Math.PI /2;
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(400 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(100,wallsHeight/2,0);
-	wall.rotation.y = Math.PI /2;
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-	wallGeo = new THREE.CubeGeometry(400 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(-100,wallsHeight/2,0);
-	wall.rotation.y = Math.PI /2;
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-
-	wallGeo = new THREE.CubeGeometry(800 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(700,wallsHeight/2,200);
-	wall.rotation.y = Math.PI /2;
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
-	wallGeo = new THREE.CubeGeometry(800 + wallsWidth,wallsHeight,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, wallMat);
-	wall.position.set(-700,wallsHeight/2,200);
-	wall.rotation.y = Math.PI /2;
-	scene.add(wall);
-	wall.castShadow = true; wall.receiveShadow = true;
-	collidableMeshList.push(wall);
+ 	createStructureWall(wallMat, wallsDepth+200, wallsHeight, wallsWidth, {x: -500, y: wallsY, z: 600}, false);
+	createStructureWall(wallMat, wallsDepth+200, wallsHeight, wallsWidth, {x: 500, y: wallsY, z: 600}, false);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: 300, y: wallsY, z: 500}, true);
+	createStructureWall(wallMat, wallsDepth, wallsHeight, wallsWidth, {x: -300, y: wallsY, z: 500}, true);
+	createStructureWall(wallMat, wallsDepth+200, wallsHeight, wallsWidth, {x: -500, y: wallsY, z: -200}, false);
+	createStructureWall(wallMat, wallsDepth+200, wallsHeight, wallsWidth, {x: 500, y: wallsY, z: -200}, false);
+	createStructureWall(wallMat, wallsDepth+200, wallsHeight, wallsWidth, {x: 300, y: wallsY, z: 0}, true);
+	createStructureWall(wallMat, wallsDepth+200, wallsHeight, wallsWidth, {x: -300, y: wallsY, z: 0}, true);
+	createStructureWall(wallMat, wallsDepth+200, wallsHeight, wallsWidth, {x: 100, y: wallsY, z: 0}, true);
+	createStructureWall(wallMat, wallsDepth+200, wallsHeight, wallsWidth, {x: -100, y: wallsY, z: 0}, true);
+	createStructureWall(wallMat, wallsDepth+600, wallsHeight, wallsWidth, {x: 700, y: wallsY, z: 200}, true);
+	createStructureWall(wallMat, wallsDepth+600, wallsHeight, wallsWidth, {x: -700, y: wallsY, z: 200}, true);
 
 	// Roof
-	wallGeo = new THREE.CubeGeometry(1400 + wallsWidth,1600,wallsWidth,1,1,1);
-	wall = new THREE.Mesh(wallGeo, roofMat);
+	var wallGeo = new THREE.CubeGeometry(1400 + wallsWidth,1600,wallsWidth,1,1,1);
+	var wall = new THREE.Mesh(wallGeo, roofMat);
 	wall.position.set(0,wallsHeight+10,400);
 	wall.rotation.x = Math.PI /2;
 	scene.add(wall);
@@ -679,9 +553,8 @@ function InitStructure(){
 	wall.receiveShadow = true;
 	collidableMeshList.push(wall);
 
-
 	// Clickable info boxes
-	wallGeo = new THREE.CubeGeometry(20 ,40,10,1,1,1);
+	wallGeo = new THREE.CubeGeometry(20,40,10,1,1,1);
 	wall = new THREE.Mesh(wallGeo, infoBoxMat);
 	wall.position.set(350,20,-150);
 	wall.rotation.y = Math.PI /6;
@@ -696,8 +569,7 @@ function InitStructure(){
 	collidableMeshList.push(wall);
 	infoModalLookup[wall.id] = GLInfo;
 
-	// Door
-
+	// Doors
 	var doorGeo = new THREE.CubeGeometry(100,wallsHeight,3,1,1,1);
 	var doorMat = new THREE.MeshPhongMaterial({map: doorTexture, color: 0xaa3322});
 	var doorTwoMat = new THREE.MeshPhongMaterial({map: doorTwoTexture, color: 0xaa3322});
