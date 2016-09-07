@@ -17,18 +17,50 @@
 	}
 </style>
 
-<script src="js/Three58.js"></script>
-<script src="js/Detector.js"></script>
-<script src="js/jquery.js"></script>
-<script src="js/THREEx.KeyboardState.js"></script>
-<script src="js/THREEx.WindowResize.js"></script>
-<script src="js/CSS3DRenderer.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/bootstrap-growl.min.js"></script>
+<script>
+var require = {
+    baseUrl: "js/",
+    paths: {
+        "three": "Three58",
+        "threeFullscreen": "THREEx.FullScreen",
+        "threeWindowResize": "THREEx.WindowResize",
+        "threeKeyboardState": "THREEx.KeyboardState",
+        "bootstrap": "bootstrap.min",
+        "bootstrapGrowl": "bootstrap-growl.min",
+        "CSS3DRenderer": "CSS3DRenderer",
+    },
+  shim:{
+        "three": {
+          exports: "THREE"
+        },
+        "threeFullScreen":{
+          deps: ["three"],
+          exports: "THREEx"
+        },
+        "threeWindowResize":{
+          deps: ["three"],
+          exports: "THREEx"
+        },
+        "threeKeyboardState":{
+          deps: ["three"],
+          exports: "THREEx"
+        },
+        "CSS3DRenderer":{
+          deps: ["three"],
+        },
+        "bootstrapGrowl":{
+          deps: ["bootstrap"]
+        },
+        "bootstrap":{
+          deps: ["jquery"]
+        }
+      }
+};
+</script>
+
+<script data-main="3dcv-release.js" src="require.js"></script>
 
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
-
-<script src="js/3dcv.js"></script>
 
 <div class="modal fade" id="info-modal">
   <div class="modal-dialog">
